@@ -1,19 +1,52 @@
 // Renders data/outings.json (written by the ig-monitor publish workflow). No build step.
 const TZ = 'America/Argentina/Buenos_Aires';
+const UTC_OFFSET_H = 3; // Argentina has no DST
 const DAY_MS = 86400000;
+const GOING_KEY = 'salidas-de-aves:voy';
 
-const $ = (sel) => document.querySelector(sel);
-const state = { view: 'upcoming', outings: [] };
+const $ = (sel, root = document) => root.querySelector(sel);
 
 // YYYY-MM-DD in Buenos Aires, regardless of the visitor's timezone
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date());
-const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * DAY_MS).toISOString().slice(0, 10);
-const weekday = (iso) => new Date(`${iso}T12:00:00Z`).getUTCDay(); // 0 = domingo
+const noon = (iso) => new Date(`${iso}T12:00:00Z`);
+const addDays = (iso, n) => new Date(noon(iso).getTime() + n * DAY_MS).toISOString().slice(0, 10);
+const weekday = (iso) => noon(iso).getUTCDay(); // 0 = domingo
 
-const fmtDay = new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-const fmtMonth = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-const day = (iso) => fmtDay.format(new Date(`${iso}T12:00:00Z`));
-const month = (iso) => fmtMonth.format(new Date(`${iso}T12:00:00Z`));
+const fmt = (opts) => new Intl.DateTimeFormat('es-AR', { ...opts, timeZone: 'UTC' });
+const fmtShort = fmt({ weekday: 'short', day: 'numeric', month: 'short' });
+const fmtWeekday = fmt({ weekday: 'long' });
+const fmtMonth = fmt({ month: 'long' });
+const cap = (s) => s.charAt(0).toLocaleUpperCase('es') + s.slice(1);
+const shortDay = (iso) => fmtShort.format(noon(iso));
+function longDay(iso) {
+  const d = noon(iso);
+  const year = iso.slice(0, 4) === today.slice(0, 4) ? '' : ` de ${iso.slice(0, 4)}`;
+  return cap(`${fmtWeekday.format(d)} ${d.getUTCDate()} de ${fmtMonth.format(d)}${year}`);
+}
+
+const state = {
+  view: 'upcoming',
+  outings: [],
+  day: null, // YYYY-MM-DD picked on the calendar
+  month: today.slice(0, 7), // YYYY-MM shown on the calendar
+  going: loadGoing(),
+};
+
+function loadGoing() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(GOING_KEY)) ?? []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveGoing() {
+  try {
+    localStorage.setItem(GOING_KEY, JSON.stringify([...state.going]));
+  } catch {
+    // private mode or blocked storage: marks last until the page is closed
+  }
+}
 
 // Saturday and Sunday of this weekend (on a Sunday, today only)
 function weekend() {
@@ -23,126 +56,271 @@ function weekend() {
   return [sat, addDays(sat, 1)];
 }
 
-const nextDate = (o) => o.dates.find((d) => d >= today) ?? null;
-const lastDate = (o) => o.dates.at(-1) ?? o.expires_on;
 const isUpcoming = (o) => o.expires_on >= today;
+const inView = (o) => (state.view === 'upcoming') === isUpcoming(o);
+// The dates that matter in the current view
+const viewDates = (o) => (state.view === 'upcoming' ? o.dates.filter((d) => d >= today) : o.dates);
 
-function matches(o) {
+function matchesFilters(o) {
   const q = $('#q').value.trim().toLocaleLowerCase('es');
   const club = $('#club').value;
   if (club && o.username !== club) return false;
+  if ($('#mine').checked && !state.going.has(o.key)) return false;
   if (q) {
     const text = [o.title, o.location, o.details, o.username, o.full_name].filter(Boolean).join(' ').toLocaleLowerCase('es');
     if (!text.includes(q)) return false;
   }
   const when = state.view === 'upcoming' ? $('#when').value : '';
   if (when) {
-    const next = nextDate(o);
-    if (!next) return false;
+    const dates = viewDates(o);
     if (when === 'weekend') {
       const [sat, sun] = weekend();
-      return o.dates.some((d) => d >= sat && d <= sun);
+      return dates.some((d) => d >= sat && d <= sun);
     }
-    return next <= addDays(today, Number(when));
+    return dates.some((d) => d <= addDays(today, Number(when)));
   }
   return true;
 }
 
-function upcomingGroup(o) {
-  const next = nextDate(o);
-  if (!next) return 'Fecha a confirmar';
-  const [sat, sun] = weekend();
-  if (next >= sat && next <= sun) return 'Este fin de semana';
-  if (next <= addDays(today, 7)) return 'Próximos días';
-  return 'Más adelante';
+// The date an outing is listed under, or null when it has none
+function listedDate(o) {
+  if (state.day) return state.day;
+  const dates = viewDates(o);
+  return (state.view === 'upcoming' ? dates[0] : dates.at(-1)) ?? null;
 }
 
 function groups(list) {
-  if (state.view === 'upcoming') {
-    const order = ['Este fin de semana', 'Próximos días', 'Más adelante', 'Fecha a confirmar'];
-    const sorted = [...list].sort((a, b) =>
-      `${nextDate(a) ?? '9999'} ${a.start_time ?? ''}`.localeCompare(`${nextDate(b) ?? '9999'} ${b.start_time ?? ''}`));
-    return order.map((name) => [name, sorted.filter((o) => upcomingGroup(o) === name)]).filter(([, l]) => l.length);
+  const byDay = new Map();
+  for (const o of list) {
+    const d = listedDate(o);
+    byDay.set(d, [...(byDay.get(d) ?? []), o]);
   }
-  const sorted = [...list].sort((a, b) => lastDate(b).localeCompare(lastDate(a)));
-  const byMonth = new Map();
-  for (const o of sorted) {
-    const name = month(lastDate(o));
-    byMonth.set(name, [...(byMonth.get(name) ?? []), o]);
-  }
-  return [...byMonth];
+  const days = [...byDay.keys()].filter(Boolean).sort();
+  if (state.view === 'past') days.reverse();
+  if (byDay.has(null)) days.push(null);
+  const byTime = (a, b) => (a.start_time ?? '99').localeCompare(b.start_time ?? '99');
+  return days.map((d) => [d, byDay.get(d).sort(byTime)]);
 }
 
-function whenText(o) {
-  if (!o.dates.length) return 'Fecha a confirmar';
-  if (state.view === 'upcoming') {
-    const [next, ...later] = o.dates.filter((d) => d >= today);
-    return `${day(next)}${o.start_time ? ` · ${o.start_time}` : ''}${later.length ? ` (también ${later.map(day).join(', ')})` : ''}`;
-  }
-  return `${o.dates.map(day).join(', ')}${o.start_time ? ` · ${o.start_time}` : ''}`;
+function relative(iso) {
+  if (state.view !== 'upcoming' || !iso) return '';
+  if (iso === today) return 'hoy';
+  if (iso === addDays(today, 1)) return 'mañana';
+  const [sat, sun] = weekend();
+  return iso >= sat && iso <= sun ? 'este finde' : '';
 }
 
-function card(o) {
-  const node = $('#card').content.firstElementChild.cloneNode(true);
-  const thumb = node.querySelector('.thumb');
-  if (o.image) {
-    thumb.href = o.post_url;
-    thumb.querySelector('img').src = `data/${o.image}`;
-  } else {
-    thumb.remove();
+// Stable small tilt per flyer, so the page looks pasted in by hand
+function tilt(key) {
+  let h = 0;
+  for (const c of key) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return `${((Math.abs(h) % 9) - 4) / 2}deg`;
+}
+
+const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
+// iCalendar for one outing, same shape as data/salidas.ics (3 h events, UTC times)
+function ics(o, dates) {
+  const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  const fold = (line) => line.match(/.{1,60}/gu).join('\r\n ');
+  const stamp = (ms) => new Date(ms).toISOString().replace(/[-:]|\.\d+/g, '');
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//salidas-de-aves//web//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+  for (const d of dates) {
+    const [y, m, day] = d.split('-').map(Number);
+    lines.push('BEGIN:VEVENT', `UID:${o.key.replace(/[^\w.-]+/g, '-')}-${d}@salidas-de-aves`, `DTSTAMP:${stamp(Date.now())}`);
+    if (o.start_time) {
+      const [hh, mm] = o.start_time.split(':').map(Number);
+      const start = Date.UTC(y, m - 1, day, hh + UTC_OFFSET_H, mm);
+      lines.push(`DTSTART:${stamp(start)}`, `DTEND:${stamp(start + 3 * 3600000)}`);
+    } else {
+      lines.push(`DTSTART;VALUE=DATE:${d.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${addDays(d, 1).replace(/-/g, '')}`);
+    }
+    lines.push(`SUMMARY:${esc(`${o.title || 'Salida de observación de aves'} (@${o.username})`)}`);
+    if (o.location) lines.push(`LOCATION:${esc(o.location)}`);
+    lines.push(`DESCRIPTION:${esc([o.details, `Publicación: ${o.post_url}`].filter(Boolean).join('\n'))}`, `URL:${o.post_url}`, 'END:VEVENT');
   }
-  node.querySelector('.when').textContent = whenText(o);
-  node.querySelector('.title').textContent = o.title || 'Salida de observación de aves';
-  const fill = (sel, text) => (text ? (node.querySelector(sel).textContent = text) : node.querySelector(sel).remove());
+  lines.push('END:VCALENDAR');
+  return lines.map(fold).join('\r\n');
+}
+
+function row(o, listed) {
+  const node = $('#row').content.firstElementChild.cloneNode(true);
+  const fill = (sel, text) => (text ? ($(sel, node).textContent = text) : $(sel, node).remove());
+
+  const time = $('.time', node);
+  if (o.start_time) time.textContent = o.start_time;
+  else {
+    time.textContent = 'sin hora';
+    time.classList.add('unknown');
+  }
+
+  const going = $('.going input', node);
+  going.checked = state.going.has(o.key);
+  going.addEventListener('change', () => {
+    if (going.checked) state.going.add(o.key);
+    else state.going.delete(o.key);
+    saveGoing();
+    node.classList.toggle('is-going', going.checked);
+    if ($('#mine').checked) render();
+  });
+  node.classList.toggle('is-going', going.checked);
+
+  $('.title', node).textContent = o.title || 'Salida de observación de aves';
   fill('.where', o.location);
-  fill('.details', o.details);
-  const account = node.querySelector('.account');
+  fill('.note', o.details);
+  const others = o.dates.filter((d) => d !== listed && (state.view === 'past' || d >= today));
+  fill('.also', others.length ? `También ${others.map(shortDay).join(', ')}` : '');
+
+  const account = $('.account', node);
   account.href = `https://www.instagram.com/${encodeURIComponent(o.username)}/`;
   account.textContent = `@${o.username}`;
   if (o.full_name) account.title = o.full_name;
-  node.querySelector('.post').href = o.post_url;
-  if (o.caption) node.querySelector('.caption p').textContent = o.caption;
-  else node.querySelector('.caption').remove();
+  if (o.location) $('.maps', node).href = mapsUrl(o.location);
+  else $('.maps', node).remove();
+  const dates = viewDates(o);
+  if (dates.length) {
+    const link = $('.ics', node);
+    link.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(ics(o, dates))}`;
+    link.download = `salida-${o.username}-${dates[0]}.ics`;
+    link.title = 'Agregar esta salida a tu calendario';
+  } else {
+    $('.ics', node).remove();
+  }
+  $('.post', node).href = o.post_url;
+  if (o.caption) $('.caption p', node).textContent = o.caption;
+  else $('.caption', node).remove();
+
+  const flyer = $('.flyer', node);
+  if (o.image) {
+    $('img', flyer).src = `data/${o.image}`;
+    flyer.setAttribute('aria-label', `Ver el flyer de @${o.username} en grande`);
+    flyer.style.setProperty('--tilt', tilt(o.key));
+    flyer.addEventListener('click', () => openViewer(o));
+  } else {
+    flyer.remove();
+  }
   return node;
 }
 
-function render() {
-  const pool = state.outings.filter((o) => (state.view === 'upcoming') === isUpcoming(o));
-  const shown = pool.filter(matches);
+function openViewer(o) {
+  const dialog = $('#viewer');
+  $('img', dialog).src = `data/${o.image}`;
+  $('img', dialog).alt = `Flyer de @${o.username}`;
+  $('.post', dialog).href = o.post_url;
+  dialog.showModal();
+}
+
+function renderList(shown, poolSize) {
   const list = $('#list');
   list.replaceChildren();
-  for (const [name, items] of groups(shown)) {
-    const section = document.createElement('section');
-    const h2 = document.createElement('h2');
-    h2.textContent = name;
-    const grid = document.createElement('div');
-    grid.className = 'grid';
-    grid.append(...items.map(card));
-    section.append(h2, grid);
-    list.append(section);
+  for (const [d, items] of groups(shown)) {
+    const page = $('#day').content.firstElementChild.cloneNode(true);
+    $('h2', page).textContent = d ? longDay(d) : state.view === 'upcoming' ? 'Fecha a confirmar' : 'Sin fecha';
+    const rel = relative(d);
+    if (rel) $('.rel', page).textContent = rel;
+    else $('.rel', page).remove();
+    $('.n', page).textContent = `${items.length} ${items.length === 1 ? 'salida' : 'salidas'}`;
+    $('.rows', page).append(...items.map((o) => row(o, d)));
+    list.append(page);
   }
-  const noun = state.view === 'upcoming' ? ['salida próxima', 'salidas próximas'] : ['salida anterior', 'salidas anteriores'];
-  $('#count').textContent = shown.length === pool.length
-    ? `${pool.length} ${noun[pool.length === 1 ? 0 : 1]}`
-    : `${shown.length} de ${pool.length} ${noun[1]}`;
   if (!shown.length) {
     const p = document.createElement('p');
-    p.className = 'empty';
-    p.textContent = pool.length ? 'Ninguna salida coincide con los filtros.' : 'Todavía no hay salidas para mostrar.';
+    p.className = 'empty hand';
+    p.textContent = poolSize ? 'ninguna salida coincide con los filtros' : 'todavía no hay salidas para mostrar';
     list.append(p);
   }
+}
+
+function renderCount(shown, poolSize) {
+  const count = $('#count');
+  const noun = state.view === 'upcoming' ? ['salida próxima', 'salidas próximas'] : ['salida anterior', 'salidas anteriores'];
+  count.textContent = shown.length === poolSize
+    ? `${poolSize} ${noun[poolSize === 1 ? 0 : 1]}`
+    : `${shown.length} de ${poolSize} ${noun[1]}`;
+  if (state.day) {
+    count.append(` · solo el ${shortDay(state.day)} `);
+    const all = document.createElement('button');
+    all.type = 'button';
+    all.className = 'link';
+    all.textContent = 'Ver todas';
+    all.addEventListener('click', () => {
+      state.day = null;
+      render();
+    });
+    count.append(all);
+  }
+}
+
+function renderCalendar(filtered) {
+  const perDay = new Map();
+  for (const o of filtered) for (const d of viewDates(o)) perDay.set(d, (perDay.get(d) ?? 0) + 1);
+
+  const first = `${state.month}-01`;
+  const d0 = noon(first);
+  $('#cal-title').textContent = cap(`${fmtMonth.format(d0)}${state.month.slice(0, 4) === today.slice(0, 4) ? '' : ` ${state.month.slice(0, 4)}`}`);
+  const grid = $('#cal-days');
+  grid.replaceChildren();
+  const lead = (weekday(first) + 6) % 7; // weeks start on Monday
+  for (let i = 0; i < lead; i++) grid.append(document.createElement('span'));
+  for (let d = first; d.startsWith(state.month); d = addDays(d, 1)) {
+    const n = perDay.get(d);
+    const label = String(Number(d.slice(8)));
+    let cell;
+    if (n) {
+      cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'outing';
+      cell.setAttribute('aria-pressed', String(state.day === d));
+      cell.setAttribute('aria-label', `${longDay(d)}: ${n} ${n === 1 ? 'salida' : 'salidas'}`);
+      cell.addEventListener('click', () => {
+        state.day = state.day === d ? null : d;
+        render();
+        if (state.day && matchMedia('(max-width: 899px)').matches) $('#list').scrollIntoView({ behavior: 'smooth' });
+      });
+    } else {
+      cell = document.createElement('span');
+      if (d < today) cell.className = 'past';
+    }
+    if (d === today) cell.classList.add('today');
+    cell.textContent = label;
+    grid.append(cell);
+  }
+}
+
+function render() {
+  const pool = state.outings.filter(inView);
+  const filtered = pool.filter(matchesFilters);
+  const shown = state.day ? filtered.filter((o) => o.dates.includes(state.day)) : filtered;
+  renderList(shown, pool.length);
+  renderCount(shown, pool.length);
+  renderCalendar(filtered);
   $('#when-field').hidden = state.view !== 'upcoming';
 }
 
 function setView(view) {
   state.view = view;
+  state.day = null;
+  // Past view opens on the month of the latest past outing
+  const latest = view === 'past' ? state.outings.filter(inView).flatMap((o) => o.dates).sort().at(-1) : null;
+  state.month = (latest ?? today).slice(0, 7);
   document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+  render();
+}
+
+function shiftMonth(n) {
+  const [y, m] = state.month.split('-').map(Number);
+  state.month = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
   render();
 }
 
 async function main() {
   // webcal:// makes phones and calendar apps offer to subscribe instead of downloading
-  $('#subscribe').href = new URL('data/salidas.ics', location.href).href.replace(/^https?:/, 'webcal:');
+  const webcal = new URL('data/salidas.ics', location.href).href.replace(/^https?:/, 'webcal:');
+  document.querySelectorAll('.subscribe').forEach((a) => (a.href = webcal));
+
+  const dialog = $('#viewer');
+  $('.close', dialog).addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
 
   try {
     const res = await fetch('data/outings.json', { cache: 'no-cache' });
@@ -152,8 +330,8 @@ async function main() {
     if (modified) {
       $('#updated').textContent = `Actualizado: ${new Date(modified).toLocaleString('es-AR', { timeZone: TZ, dateStyle: 'long', timeStyle: 'short' })}`;
     }
-  } catch (e) {
-    $('#list').innerHTML = '<p class="empty">No se pudieron cargar las salidas. Probá de nuevo en un rato.</p>';
+  } catch {
+    $('#list').innerHTML = '<p class="empty hand">no se pudieron cargar las salidas: probá de nuevo en un rato</p>';
     return;
   }
 
@@ -161,7 +339,9 @@ async function main() {
   $('#club').append(...clubs.map((u) => new Option(`@${u}`, u)));
 
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
-  for (const id of ['#q', '#club', '#when']) $(id).addEventListener('input', render);
+  for (const id of ['#q', '#club', '#when', '#mine']) $(id).addEventListener('input', render);
+  $('#prev-month').addEventListener('click', () => shiftMonth(-1));
+  $('#next-month').addEventListener('click', () => shiftMonth(1));
   render();
 }
 
