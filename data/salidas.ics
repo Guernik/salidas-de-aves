@@ -1,5 +1,9 @@
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//salidas-de-aves//ig-monitor//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
 X-WR-CALNAME:Salidas de aves
+X-WR-TIMEZONE:America/Argentina/Buenos_Aires
+X-ORIGINAL-URL:https://guernik.github.io/salidas-de-aves/
 END:VCALENDAR
