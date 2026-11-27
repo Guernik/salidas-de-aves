@@ -82,9 +82,9 @@ section h2::first-letter { text-transform: uppercase; }
   border-radius: 8px;
   overflow: hidden;
 }
-/* Instagram portrait ratio; most flyers fit whole */
+/* Instagram portrait ratio; flyers are shown whole (landscape and square ones get bands) */
 .thumb { position: relative; display: block; aspect-ratio: 4 / 5; background: var(--line); overflow: hidden; }
-.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
 .body p { margin: 0; }
 .when { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
