@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salidas de aves</title>
+  <meta name="description" content="Próximas salidas de observación de aves anunciadas por clubes y grupos en Instagram.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="alternate" type="text/calendar" title="Salidas de aves" href="data/salidas.ics">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>Salidas de aves</h1>
+      <p class="lede">Salidas de observación de aves que anuncian clubes y grupos en Instagram, juntas en un solo lugar.</p>
+      <p class="subscribe">
+        <a id="subscribe" href="data/salidas.ics">Suscribirse al calendario</a>
+        <span class="muted">· funciona con Google Calendar, Apple y Outlook</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs" aria-label="Vista">
+      <button type="button" class="tab" data-view="upcoming" aria-pressed="true">Próximas</button>
+      <button type="button" class="tab" data-view="past" aria-pressed="false">Anteriores</button>
+    </nav>
+
+    <form class="filters" role="search" onsubmit="return false">
+      <label class="field grow">
+        <span>Buscar</span>
+        <input id="q" type="search" placeholder="Lugar, título o club" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Club</span>
+        <select id="club"><option value="">Todos</option></select>
+      </label>
+      <label class="field" id="when-field">
+        <span>Cuándo</span>
+        <select id="when">
+          <option value="">Cualquier fecha</option>
+          <option value="weekend">Este fin de semana</option>
+          <option value="7">Próximos 7 días</option>
+          <option value="30">Próximos 30 días</option>
+        </select>
+      </label>
+    </form>
+
+    <p id="count" class="muted" aria-live="polite"></p>
+    <div id="list"></div>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Las salidas se detectan automáticamente a partir de las publicaciones, así que puede haber errores. Confirmá siempre fecha, horario e inscripción en la publicación original.</p>
+    <p id="updated" class="muted"></p>
+  </footer>
+
+  <template id="card">
+    <article class="card">
+      <a class="thumb" target="_blank" rel="noopener"><img alt="" loading="lazy" decoding="async"></a>
+      <div class="body">
+        <p class="when"></p>
+        <h3 class="title"></h3>
+        <p class="where"></p>
+        <p class="details"></p>
+        <p class="source"><a class="account" target="_blank" rel="noopener"></a> · <a class="post" target="_blank" rel="noopener">Ver publicación</a></p>
+        <details class="caption"><summary>Texto de la publicación</summary><p></p></details>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
