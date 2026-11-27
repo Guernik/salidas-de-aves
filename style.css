@@ -73,7 +73,7 @@ input:focus-visible, select:focus-visible, .tab:focus-visible, a:focus-visible {
 section h2 { font-size: 1.05rem; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 section h2::first-letter { text-transform: uppercase; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 16px; }
 
 .card {
   display: flex;
@@ -82,9 +82,10 @@ section h2::first-letter { text-transform: uppercase; }
   border-radius: 8px;
   overflow: hidden;
 }
-.thumb { display: block; aspect-ratio: 4 / 3; background: var(--line); }
-.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
+/* Instagram portrait ratio; most flyers fit whole */
+.thumb { position: relative; display: block; aspect-ratio: 4 / 5; background: var(--line); overflow: hidden; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
 .body p { margin: 0; }
 .when { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
 .when::first-letter { text-transform: uppercase; }
@@ -102,6 +103,5 @@ section h2::first-letter { text-transform: uppercase; }
 .foot p { margin: 0 0 6px; max-width: 70ch; }
 
 @media (max-width: 520px) {
-  .grid { grid-template-columns: 1fr; }
   .field { min-width: 0; flex: 1 1 140px; }
 }
