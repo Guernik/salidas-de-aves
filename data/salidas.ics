@@ -6,4 +6,70 @@ METHOD:PUBLISH
 X-WR-CALNAME:Salidas de aves
 X-WR-TIMEZONE:America/Argentina/Buenos_Aires
 X-ORIGINAL-URL:https://guernik.github.io/salidas-de-aves/
+BEGIN:VEVENT
+UID:ambientelomas-2026-11-28-2026-11-28@salidas-de-aves
+DTSTAMP:20261124T153825Z
+DTSTART:20261128T150000Z
+DTEND:20261128T180000Z
+SUMMARY:Encuentro Naturalista del Sur (ENaSur) en Bandada - Avistaje de Ave
+ s del Humedal (@ambientelomas)
+LOCATION:Parque Finky\, Vicente López 1497 (San Basilio y Vicente López)\
+ , Turdera
+DESCRIPTION:Jornada de 12 a 19 hs\; avistaje de aves a las 16 hs junto al C
+ OA Zorzal Colorado. Entrada libre\, sin inscripción indicada.\nPublicaci
+ ón: https://www.instagram.com/p/DgIS50NJT5k/
+URL:https://www.instagram.com/p/DgIS50NJT5k/
+END:VEVENT
+BEGIN:VEVENT
+UID:coa-hurlingham-2026-11-28-2026-11-28@salidas-de-aves
+DTSTAMP:20261125T184215Z
+DTSTART:20261128T103000Z
+DTEND:20261128T133000Z
+SUMMARY:Avistaje y Relevamiento de Biodiversidad en el Arroyo Morón (@coa.
+ hurlingham)
+LOCATION:Av. Roca y Rodríguez (frente a la posta policial\, saliendo por R
+ oca hacia El Palomar)\, Hurlingham
+DESCRIPTION:Actividad abierta y gratuita\, sin inscripción obligatoria\; a
+ visar por WhatsApp o a coa.hurlingham@avesargentinas.org.ar. Traer agua\, 
+ sombrero\, ropa cómoda\, calzado cerrado y binoculares si tenés.\nPublic
+ ación: https://www.instagram.com/p/DgLMu2rv5Ot/
+URL:https://www.instagram.com/p/DgLMu2rv5Ot/
+END:VEVENT
+BEGIN:VEVENT
+UID:coabichofeo-2026-11-28-2026-11-28@salidas-de-aves
+DTSTAMP:20261126T015804Z
+DTSTART:20261128T120000Z
+DTEND:20261128T150000Z
+SUMMARY:Salimos a observar Aves (@coabichofeo)
+LOCATION:Reserva Natural Municipal del Pilar\, Dr. Manuel Argerich 10\, Pil
+ ar\, Bs. As.
+DESCRIPTION:Encuentro a las 8:45 en la entrada de la reserva\; salida a las
+  9:00. Gratuita\, abierta a todo público\, sin inscripción. Llevar prote
+ ctor solar\, agua y ropa cómoda.\nPublicación: https://www.instagram.com
+ /p/DgL-m9wNz9Q/
+URL:https://www.instagram.com/p/DgL-m9wNz9Q/
+END:VEVENT
+BEGIN:VEVENT
+UID:coaloberia-2026-11-28-2026-11-28@salidas-de-aves
+DTSTAMP:20261124T221752Z
+DTSTART:20261128T113000Z
+DTEND:20261128T143000Z
+SUMMARY:Descubriendo las aves de Lobería (@coaloberia)
+LOCATION:Inicio del Camino de Sirga\, sobre la entrada asfaltada a Lobería
+DESCRIPTION:Llevá mate. Inscripción por email a coaloberia@gmail.com\nPub
+ licación: https://www.instagram.com/p/DgJAh1MisH0/
+URL:https://www.instagram.com/p/DgJAh1MisH0/
+END:VEVENT
+BEGIN:VEVENT
+UID:coapalermo-2026-11-28-2026-11-28@salidas-de-aves
+DTSTAMP:20261125T000253Z
+DTSTART:20261128T120000Z
+DTEND:20261128T150000Z
+SUMMARY:Salida de observación de aves (@coapalermo)
+LOCATION:Av. Dorrego y Av. Figueroa Alcorta
+DESCRIPTION:Gratuita\, sin inscripción. Traer gorra\, agua\, repelente y b
+ inoculares si tenés. Organizada junto con Club Picaflor.\nPublicación: h
+ ttps://www.instagram.com/p/DgJMoWUPtmL/
+URL:https://www.instagram.com/p/DgJMoWUPtmL/
+END:VEVENT
 END:VCALENDAR
