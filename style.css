@@ -1,7 +1,7 @@
 /* Field notebook: warm paper, Grönvold's plates, ink and sage, rufous handwritten notes */
 :root {
-  --paper: #FBF6EC;
-  --sheet: #FFFDF8;
+  --paper: #F3EFDF;
+  --sheet: #FBF9F1;
   --ink: #3B2F24;
   --ink-2: #5A4A3B;
   --ink-3: #6B5B4B;
@@ -27,12 +27,7 @@
 body {
   margin: 0;
   overflow-x: hidden;
-  background:
-    radial-gradient(260px 210px at 40px 30px, rgba(143, 165, 120, 0.28), transparent),
-    radial-gradient(280px 190px at calc(100% - 40px) 60px, rgba(214, 170, 112, 0.25), transparent)
-    var(--paper);
-  background-repeat: no-repeat;
-  background-color: var(--paper);
+  background: var(--paper);
   color: var(--ink);
   font: 17px/1.45 var(--sans);
 }
@@ -85,7 +80,7 @@ main { padding-top: 24px; padding-bottom: 40px; }
   padding: 16px;
   border: 1px solid var(--rule);
   border-radius: 10px;
-  background: rgba(255, 253, 248, 0.8);
+  background: var(--sheet);
 }
 .field { flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 500; color: var(--ink-2); }
 .field.grow { flex: 2 1 280px; }
@@ -112,10 +107,7 @@ input[type="search"], select {
 }
 .tab[aria-pressed="true"] { border-bottom-color: var(--sage); color: var(--ink); font-weight: 700; }
 
-input[type="checkbox"] { width: 20px; height: 20px; margin: 0; accent-color: var(--sage); }
-
-.status { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 0.95rem; color: var(--ink-3); }
-.mine { display: flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; }
+.status { display: flex; align-items: center; min-height: 40px; margin-top: 14px; font-size: 0.95rem; color: var(--ink-3); }
 .link { padding: 0; border: 0; background: none; font: inherit; color: var(--sage); text-decoration: underline; cursor: pointer; }
 
 /* Pages and sidebar; birds perch above the panels on wide screens */
@@ -143,24 +135,39 @@ input[type="checkbox"] { width: 20px; height: 20px; margin: 0; accent-color: var
   border-bottom: 1px dashed var(--dash);
 }
 .row:last-child { border-bottom: 0; }
-.row.is-going { background: linear-gradient(90deg, rgba(95, 115, 80, 0.09), transparent 60%); }
 
 .when { grid-area: when; display: flex; flex-direction: column; gap: 6px; }
 .time { font-family: var(--serif); font-size: 1.75rem; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
 .time.unknown { font-family: var(--hand); font-size: 1.3rem; font-weight: 600; color: var(--faint); }
-.going { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 0.95rem; font-weight: 500; color: var(--ink-2); cursor: pointer; }
 
 .info { grid-area: info; min-width: 0; display: flex; flex-direction: column; gap: 5px; overflow-wrap: anywhere; }
 .title { margin: 0; font-size: 1.4rem; line-height: 1.2; font-weight: 700; }
 .where { color: var(--ink-2); }
-.note { margin-top: 2px; font-size: 1.45rem; line-height: 1.1; color: var(--rufous); }
+.note { margin-top: 2px; padding-left: 12px; border-left: 2px solid var(--rule-2); font-size: 0.95rem; color: var(--ink-3); }
 .also { font-size: 0.95rem; color: var(--ink-3); }
 .links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; }
 .links a { min-height: 32px; display: inline-flex; align-items: center; }
 .account { font-weight: 700; }
-.caption { font-size: 0.95rem; color: var(--ink-3); }
-.caption summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
-.caption p { white-space: pre-line; margin-top: 6px; }
+.caption { margin-top: 6px; font-size: 0.95rem; color: var(--ink-3); }
+.caption summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--field);
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: var(--ink-2);
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+.caption summary::-webkit-details-marker { display: none; }
+.caption summary::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform 0.15s ease; }
+.caption[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+.caption summary:hover { border-color: var(--ink-3); color: var(--ink); }
+.caption p { white-space: pre-line; margin-top: 10px; padding: 12px 14px; border-radius: 6px; background: var(--paper); }
 
 .flyer {
   grid-area: flyer;

@@ -2,7 +2,6 @@
 const TZ = 'America/Argentina/Buenos_Aires';
 const UTC_OFFSET_H = 3; // Argentina has no DST
 const DAY_MS = 86400000;
-const GOING_KEY = 'salidas-de-aves:voy';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -29,24 +28,7 @@ const state = {
   outings: [],
   day: null, // YYYY-MM-DD picked on the calendar
   month: today.slice(0, 7), // YYYY-MM shown on the calendar
-  going: loadGoing(),
 };
-
-function loadGoing() {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(GOING_KEY)) ?? []);
-  } catch {
-    return new Set();
-  }
-}
-
-function saveGoing() {
-  try {
-    localStorage.setItem(GOING_KEY, JSON.stringify([...state.going]));
-  } catch {
-    // private mode or blocked storage: marks last until the page is closed
-  }
-}
 
 // Saturday and Sunday of this weekend (on a Sunday, today only)
 function weekend() {
@@ -65,7 +47,6 @@ function matchesFilters(o) {
   const q = $('#q').value.trim().toLocaleLowerCase('es');
   const club = $('#club').value;
   if (club && o.username !== club) return false;
-  if ($('#mine').checked && !state.going.has(o.key)) return false;
   if (q) {
     const text = [o.title, o.location, o.details, o.username, o.full_name].filter(Boolean).join(' ').toLocaleLowerCase('es');
     if (!text.includes(q)) return false;
@@ -153,17 +134,6 @@ function row(o, listed) {
     time.textContent = 'sin hora';
     time.classList.add('unknown');
   }
-
-  const going = $('.going input', node);
-  going.checked = state.going.has(o.key);
-  going.addEventListener('change', () => {
-    if (going.checked) state.going.add(o.key);
-    else state.going.delete(o.key);
-    saveGoing();
-    node.classList.toggle('is-going', going.checked);
-    if ($('#mine').checked) render();
-  });
-  node.classList.toggle('is-going', going.checked);
 
   $('.title', node).textContent = o.title || 'Salida de observación de aves';
   fill('.where', o.location);
@@ -339,7 +309,7 @@ async function main() {
   $('#club').append(...clubs.map((u) => new Option(`@${u}`, u)));
 
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
-  for (const id of ['#q', '#club', '#when', '#mine']) $(id).addEventListener('input', render);
+  for (const id of ['#q', '#club', '#when']) $(id).addEventListener('input', render);
   $('#prev-month').addEventListener('click', () => shiftMonth(-1));
   $('#next-month').addEventListener('click', () => shiftMonth(1));
   render();
