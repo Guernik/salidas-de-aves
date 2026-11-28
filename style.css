@@ -207,6 +207,13 @@ input[type="search"], select {
 .invite p { color: #4A4034; }
 .invite .btn { align-self: flex-start; }
 
+.contact { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
+.contact h2 { font-size: 1.4rem; font-weight: 700; }
+.contact p { color: var(--ink-2); }
+.contact a { font-weight: 700; overflow-wrap: anywhere; }
+
+.byline { font-size: 0.9rem; color: var(--ink-3); }
+
 /* Footer */
 .foot { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: flex-end; justify-content: space-between; padding-bottom: 40px; }
 .foot > div { display: flex; flex-direction: column; gap: 8px; max-width: 64ch; font-size: 0.9rem; color: var(--ink-2); }
@@ -251,4 +258,14 @@ input[type="search"], select {
   .flyer img { width: 76px; height: 95px; }
   .foot .plate img { width: 180px; }
   .foot figcaption { padding-bottom: 16px; }
+}
+
+/* About page */
+.back { font-size: 0.95rem; }
+.about { max-width: 72ch; padding: 8px 28px 28px; }
+.about section { display: flex; flex-direction: column; gap: 10px; padding-top: 20px; }
+.about h2 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+.about p { color: var(--ink-2); }
+@media (max-width: 640px) {
+  .about { padding: 4px 18px 22px; }
 }
