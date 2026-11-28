@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acerca de · Salidas de aves</title>
+  <meta name="description" content="Qué es Salidas de aves, cómo se arma y quién lo hace.">
+  <meta name="theme-color" content="#F3EFDF">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&family=Caveat:wght@600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top wrap">
+    <div class="intro">
+      <p class="back"><a href="./">← Volver a las salidas</a></p>
+      <h1>Acerca de este sitio</h1>
+      <p class="lede">Las salidas de observación que anuncian los clubes, en un solo cuaderno.</p>
+    </div>
+    <figure class="plate hero">
+      <img class="bird" src="images/birds/carancho.webp" width="581" height="640" alt="Lámina de un carancho, por Henrik Grönvold (1920)">
+      <figcaption class="hand">carancho<br>(Caracara plancus)</figcaption>
+    </figure>
+  </header>
+
+  <main class="wrap">
+    <article class="page about">
+      <section>
+        <h2>Qué es</h2>
+        <p>Siempre estoy atento a las salidas de observación y fotografía de aves, pero con más de 30 perfiles de COAs para seguir en Instagram, se me hacía imposible llevar el apunte de cuáles y dónde son las próximas salidas.</p>
+        <p>Por eso creé este sitio: de forma automática, y en un solo lugar, puedo ver todas las próximas salidas.</p>
+      </section>
+
+      <section>
+        <h2>Cómo funciona</h2>
+        <p>Un proceso automático revisa periódicamente las publicaciones de las cuentas que sigue, detecta las que anuncian una salida y extrae la fecha, el horario, el lugar y los detalles con inteligencia artificial.</p>
+        <p>Como todo es automático, puede haber errores. Antes de ir, confirmá fecha, horario e inscripción en la publicación original: cada salida tiene el enlace.</p>
+      </section>
+
+      <section>
+        <h2>Calendario</h2>
+        <p>Podés <a class="subscribe" href="data/salidas.ics">suscribirte al calendario</a> desde Google, Apple u Outlook y las salidas nuevas aparecen solas en tu agenda.</p>
+      </section>
+
+      <section>
+        <h2>Las láminas</h2>
+        <p>Las ilustraciones son de Henrik Grönvold para <a href="https://archive.org/details/birdsoflaplata02huds"><em>The Birds of La Plata</em></a> de W. H. Hudson (1920), y son de dominio público.</p>
+      </section>
+
+      <section>
+        <h2>Quién lo hace</h2>
+        <p>Lo creó Emilio Guernik. Si falta un club, encontrás un error o tenés una sugerencia, escribime a <a href="mailto:aves@emilioguernik.com">aves@emilioguernik.com</a>.</p>
+        <p>Si tenés algún problema que requiera de una solución tecnológica, contactame para una consulta comercial: <a href="mailto:contacto@emilioguernik.com">contacto@emilioguernik.com</a></p>
+      </section>
+    </article>
+  </main>
+
+  <footer class="wrap foot">
+    <div>
+      <p class="byline">Creado por Emilio Guernik · <a href="./">Salidas de aves</a></p>
+    </div>
+    <figure class="plate">
+      <img class="bird" src="images/birds/chorlito-cabezon.webp" width="640" height="323" alt="Lámina de un chorlito cabezón, por Henrik Grönvold (1920)" loading="lazy">
+      <figcaption class="hand">chorlito cabezón</figcaption>
+    </figure>
+  </footer>
+
+  <script>
+    // webcal:// makes phones and calendar apps offer to subscribe instead of downloading
+    const webcal = new URL('data/salidas.ics', location.href).href.replace(/^https?:/, 'webcal:');
+    document.querySelectorAll('.subscribe').forEach((a) => (a.href = webcal));
+  </script>
+</body>
+</html>
