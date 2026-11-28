@@ -215,10 +215,11 @@ input[type="search"], select {
 .byline { font-size: 0.9rem; color: var(--ink-3); }
 
 /* Footer */
-.foot { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: flex-end; justify-content: space-between; padding-bottom: 40px; }
-.foot > div { display: flex; flex-direction: column; gap: 8px; max-width: 64ch; font-size: 0.9rem; color: var(--ink-2); }
+/* Same columns as .layout so the footer lines up with the pages and sidebar */
+.foot { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: flex-end; padding-bottom: 40px; }
+.foot > div { flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--ink-2); }
 .foot .credit, #updated { color: var(--ink-3); font-size: 0.85rem; }
-.foot .plate { display: flex; align-items: flex-end; gap: 4px; }
+.foot .plate { flex: 1 1 290px; display: flex; justify-content: flex-end; align-items: flex-end; gap: 4px; }
 .foot .plate img { width: 260px; }
 .foot figcaption { font-size: 1.25rem; color: var(--ink-3); padding-bottom: 28px; }
 
