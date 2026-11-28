@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Salidas de aves</title>
   <meta name="description" content="Las salidas de observación de aves que anuncian clubes y grupos en Instagram, en un solo cuaderno.">
-  <meta name="theme-color" content="#FBF6EC">
+  <meta name="theme-color" content="#F3EFDF">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&family=Caveat:wght@600&display=swap">
@@ -58,12 +58,10 @@
 
     <div class="status">
       <p id="count" aria-live="polite"></p>
-      <label class="mine"><input id="mine" type="checkbox"> Solo las que marqué “Voy”</label>
     </div>
 
     <div class="layout">
-      <div class="pages perched">
-        <img class="bird perch" src="images/birds/lechucita-vizcachera.webp" width="586" height="640" alt="Lámina de dos lechucitas vizcacheras, por Henrik Grönvold (1920)">
+      <div class="pages">
         <div id="list"></div>
       </div>
 
@@ -104,7 +102,7 @@
 
   <dialog id="viewer" aria-label="Flyer">
     <img alt="">
-    <p class="viewer-links"><a class="post" target="_blank" rel="noopener">Ver publicación</a><button type="button" class="close">Cerrar</button></p>
+    <p class="viewer-links"><a class="post" target="_blank" rel="noopener">Ver publicación en Instagram</a><button type="button" class="close">Cerrar</button></p>
   </dialog>
 
   <template id="day">
@@ -118,20 +116,19 @@
     <li class="row">
       <div class="when">
         <p class="time"></p>
-        <label class="going"><input type="checkbox"> Voy</label>
       </div>
       <div class="info">
         <h3 class="title"></h3>
         <p class="where"></p>
-        <p class="note hand"></p>
+        <p class="note"></p>
         <p class="also"></p>
         <p class="links">
           <a class="account" target="_blank" rel="noopener"></a>
           <a class="maps" target="_blank" rel="noopener">Cómo llegar</a>
           <a class="ics" download="salida.ics">Agendar</a>
-          <a class="post" target="_blank" rel="noopener">Ver publicación</a>
+          <a class="post" target="_blank" rel="noopener">Ver publicación en Instagram</a>
         </p>
-        <details class="caption"><summary>Texto de la publicación</summary><p></p></details>
+        <details class="caption"><summary>Ver texto de la publicación</summary><p></p></details>
       </div>
       <button type="button" class="flyer"><img alt="" loading="lazy" decoding="async"></button>
     </li>
